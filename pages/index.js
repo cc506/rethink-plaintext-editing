@@ -10,6 +10,7 @@ import { listFiles } from '../files';
 import MarkdownEditor from '../components/MarkdownEditor';
 import PlaintextEditor from '../components/PlaintextEditor';
 import Code from '../components/codeHighlight';
+import MarkdownIt from 'markdown-it';
 
 import IconPlaintextSVG from '../public/icon-plaintext.svg';
 import IconMarkdownSVG from '../public/icon-markdown.svg';
@@ -77,7 +78,7 @@ FilesTable.propTypes = {
   setActiveFile: PropTypes.func
 };
 
-function Previewer({ file }) {
+function PreviewType({file}){
   const [value, setValue] = useState('');
   console.log(file);
 
@@ -87,15 +88,24 @@ function Previewer({ file }) {
     })();
   }, [file]);
 
+  if(file.type === 'text/markdown'){
+    const md = new MarkdownIt();
+    return <div className={css.content}>{md.render(value)}</div>
+  } else if(file.type === 'text/javascript' || file.type === 'application/json'){
+    return <Code file={file} />
+  } else {
+    <div className={css.content}>
+        {value}
+    </div> 
+  }
+}
+
+function Previewer({ file }) {
+
   return (
     <div className={css.preview}>
       <div className={css.title}>{path.basename(file.name)}</div>
-      {/* <div className={css.content}>
-        <Code code={value} language="javascript" />
-      </div> */}
-      <div className={css.content}>
-        {value}
-      </div> 
+      <PreviewType file={file}></PreviewType>
     </div>
   );
 }
